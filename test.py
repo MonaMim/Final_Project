@@ -4,7 +4,9 @@ from pydub import AudioSegment
 import librosa
 
 class AudioProccessor:
-
+    def createDirectory(directory)
+        if not os.path.exists(directory):
+        os.makedirs(directory)
     def mp3Split(self, source_file_path, destination_folder_path):
         audio = AudioSegment.from_mp3(source_file_path)
         l = len(audio)
@@ -50,7 +52,7 @@ class AudioProccessor:
     #        np.vstack((mfcc_vectors, mfcc_vector))
      #   return mfcc_vectors
 
-
+AudioProccessor().createDirectory('CHAHARGAH')
 AudioProccessor().mp3Split('BavarKon.mp3', 'CHAHARGAH')
 #data = AudioProccessor().save_data_to_array('CHAHARGAH')
 data = AudioProccessor().wav2mfcc('CHAHARGAH')
