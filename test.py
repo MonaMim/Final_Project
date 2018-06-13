@@ -53,7 +53,7 @@ class AudioProccessor:
      #   return mfcc_vectors
 
 AudioProccessor().createDirectory('CHAHARGAH')
-AudioProccessor().mp3Split('BavarKon.mp3', 'CHAHARGAH')
+AudioProccessor().mp3Split('Shadjarian_Overture_CHAHARGAH.mp3', 'CHAHARGAH')
 #data = AudioProccessor().save_data_to_array('CHAHARGAH')
 #data = AudioProccessor().wav2mfcc('CHAHARGAH')
 #print(data)
