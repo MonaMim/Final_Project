@@ -18,12 +18,13 @@ class AudioProccessor:
             curFrame = audio[startFrom:startFrom + duration]
             startFrom = startFrom + duration
             listOfNewAudios.append(curFrame)
-            curFrame.export(destination_folder_path + '/splitted' + str(i) + '.mp3', format="mp3")
+            curFrame.export(destination_folder_path + '/splitted' + str(i) + '.wav', format="wav")
             i = i + 1
         return listOfNewAudios
 
     def wav2mfcc(source_path, max_pad_len=11):
-        wave, sr = librosa.load(source_path, mono=True, sr=None)
+        fixpath = os.path.join(source_path, "splitted1.wav")
+        wave, sr = librosa.load(fixpath, mono=True, sr=None)
         wave = wave[::3]
         mfcc = librosa.feature.mfcc(wave, sr=16000)
         pad_width = max_pad_len - mfcc.shape[1]
@@ -37,23 +38,23 @@ class AudioProccessor:
     #    label_indices = np.arange(0, len(labels))
     #    return labels, label_indices
 
-   # def save_data_to_array(path, max_pad_len=11):
+    def save_data_to_array(path, max_pad_len=11):
       #  labels, _ = AudioProccessor().get_labels(path)
-   #     mfcc_vectors = []
+        mfcc_vectors = []
         #for label in labels:
             # Init mfcc vectors
-    #    mfcc_vector = []
+        mfcc_vector = []
            # wavfiles = [path + label + '/' + wavfile for wavfile in os.listdir(path + '/' + label)]
-    #    wavfiles = ['CHAHARGAH/' + wavfile for wavfile in os.listdir('CHAHARGAH/')]
-    #    for wavfile in wavfiles:
-    #        mfcc = AudioProccessor().wav2mfcc(wavfile)
-    #        mfcc_vector.append(mfcc)
-    #        np.save('CHAHARGAH' + '.npy', mfcc_vector)
-    #        np.vstack((mfcc_vectors, mfcc_vector))
-     #   return mfcc_vectors
+        wavfiles = ['CHAHARGAH/' + wavfile for wavfile in os.listdir('CHAHARGAH/')]
+        for wavfile in wavfiles:
+            mfcc = AudioProccessor().wav2mfcc(wavfile)
+            mfcc_vector.append(mfcc)
+            np.save('CHAHARGAH' + '.npy', mfcc_vector)
+            np.vstack((mfcc_vectors, mfcc_vector))
+        return mfcc_vectors
 
-AudioProccessor().createDirectory('CHAHARGAH')
-AudioProccessor().mp3Split('Shadjarian_Overture_CHAHARGAH.mp3', 'CHAHARGAH')
+#AudioProccessor().createDirectory('CHAHARGAH')
+#AudioProccessor().mp3Split('Shadjarian_Overture_CHAHARGAH.mp3', 'CHAHARGAH')
 #data = AudioProccessor().save_data_to_array('CHAHARGAH')
-#data = AudioProccessor().wav2mfcc('CHAHARGAH')
+data = AudioProccessor().wav2mfcc('/CHAHARGAH/')
 #print(data)
