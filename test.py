@@ -3,8 +3,6 @@ import os
 from pydub import AudioSegment
 import librosa
 from tqdm import tqdm
-from keras.utils import np_utils
-#from keras import utils as np_utils
 
 class AudioProccessor:
     counter = 1
@@ -75,40 +73,55 @@ class AudioProccessor:
         for wavfile in wavfiles:
             AudioProccessor().mp3Split(wavfile, DASTGAH_destination_path)
 
-    def set_X_Y(x_vector, y_vector):
-        AudioProccessor().save_data_to_array(x_vector)
-        y = numpy.full(len(x_vector), "CHAHARGAH", dtype=None)
+    def to_categorical(this, vector_y): #lookup table
+        x=0
+        while x < len(vector_y):
+        
+            y = [0,0,0,0,0,0,0]
+
+        for x in enumerate(vector_y):
+
+            
+            if vector_y[x]=="Nava":
+                y[0]=1
+                vector_y[x] = y
+            if vector_y[x]=="Mahour":
+                y[1]=1
+                vector_y[x] = y
+            if vector_y[x]=="Shour":
+                y[2]=1
+                vector_y[x] = y
+            if vector_y[x]=="Chahargah":
+                y[3]=1
+                vector_y[x] = y
+            if vector_y[x]=="Homayoun":
+                y[4]=1
+                vector_y[x] = y
+            if vector_y[x]=="Segah":
+                y[5]=1
+                vector_y[x] = y
+            if vector_y[x]=="Rastepanjgah":
+                y[6]=1
+                vector_y[x] = y
+            x = x+1
+        print vector_y
+        return vector_y
 
 
-AudioProccessor().split_group("CHAHARGAH_Raw", "CHAHARGAH_Splitted")
-ChahargahData = AudioProccessor().save_data_to_array('CHAHARGAH_Splitted')
+    def set_X_Y(this, DASTGAH):
+        AudioProccessor().split_group(DASTGAH+"_Raw", DASTGAH+ "_Splitted")
+        DASTGAH_X = AudioProccessor().save_data_to_array(DASTGAH+'_Splitted')
+        DASTGAH_Y = len(DASTGAH_X) *[DASTGAH]
+        return DASTGAH_X, DASTGAH_Y
 
 
-np.set_printoptions(threshold=np.nan)
-#print ChahargahData
+Chahargah_X, Chahargah_Y = AudioProccessor().set_X_Y("CHAHARGAH")
+Nava_X, Nava_Y = AudioProccessor().set_X_Y("NAVA")
 
-CH_y = np.full(len(ChahargahData), "CHAHARGAH", dtype=None)
-print "CHAHARGAH: ", ChahargahData.shape
-print "CH_Y: ", CH_y.shape
+Chahargah_Y = AudioProccessor().to_categorical(Chahargah_Y)
+Nava_Y = AudioProccessor().to_categorical(Nava_Y)
 
-AudioProccessor().split_group("NAVA_Raw", "NAVA_Splitted")
-NavaData = AudioProccessor().save_data_to_array('NAVA_Splitted')
-NA_y = np.full(len(NavaData), "NAVA", dtype=None)
-print "NavaData: ", NavaData.shape
-print "NA_Y: ", NA_y.shape
+Y = Chahargah_Y + Nava_Y
+X = np.vstack((Chahargah_X, Nava_X))
 
-
-Y = np.append(CH_y, NA_y)
-X = np.append(ChahargahData, NavaData)
-
-
-print Y.shape
-print X.shape
-
-#Y = keras.to_categorical(Y, num_classes=None)
-#Y = np_utils.to_categorical(Y, 10)
-Y = np_utils.to_categorical(Y, 3)
-print Y, Y.shape
-#
-#all_data = np.concatenate((ChahargahData, y[:, np.newaxis]), axis=1)
-#print all_data, all_data.shape
+#print np.shape(X)
