@@ -75,7 +75,8 @@ class AudioProccessor:
             AudioProccessor().mp3Split(wavfile, DASTGAH_destination_path)
 
     def to_categorical(this, vector_y): #lookup table
-        y = np.empty([len(vector_y), 7])
+        categorical_vec = [0,0,0,0,0,0,0]
+        y = np.empty([len(vector_y), len(categorical_vec)])
         #categorical_vec = np.empty([len(vector_y),7], dtype=int)
         #["Nava", "Mahour", "Shour", "Chahargah", "Homayoun", "Segah", "Rastgepanjgah"]
         #y = np.empty(len(vector_y))
@@ -114,8 +115,10 @@ class AudioProccessor:
 Chahargah_X, Chahargah_Y = AudioProccessor().set_X_Y("CHAHARGAH")
 Nava_X, Nava_Y = AudioProccessor().set_X_Y("NAVA")
 
-Y = Chahargah_Y + Nava_Y
-Y = AudioProccessor().to_categorical(Y)
+#Y = Chahargah_Y + Nava_Y 
+print Chahargah_Y
+print Nava_Y
+Y = AudioProccessor().to_categorical(Chahargah_Y)
 X = np.vstack((Chahargah_X, Nava_X))
 
-print Y 
+print Y
