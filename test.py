@@ -5,6 +5,7 @@ import librosa
 from tqdm import tqdm
 
 class AudioProccessor:
+    np.set_printoptions(threshold=np.nan)
     counter = 1
 
     def createDirectory(self, directory):
@@ -74,38 +75,33 @@ class AudioProccessor:
             AudioProccessor().mp3Split(wavfile, DASTGAH_destination_path)
 
     def to_categorical(this, vector_y): #lookup table
-        x=0
-        while x < len(vector_y):
-        
-            y = [0,0,0,0,0,0,0]
+        y = np.empty([len(vector_y), 7])
+        #categorical_vec = np.empty([len(vector_y),7], dtype=int)
+        #["Nava", "Mahour", "Shour", "Chahargah", "Homayoun", "Segah", "Rastgepanjgah"]
+        #y = np.empty(len(vector_y))
 
-        for x in enumerate(vector_y):
-
+        for x , a in enumerate(vector_y):
+            categorical_vec = [0,0,0,0,0,0,0]
             
             if vector_y[x]=="Nava":
-                y[0]=1
-                vector_y[x] = y
+                categorical_vec[0]=1
             if vector_y[x]=="Mahour":
-                y[1]=1
-                vector_y[x] = y
+                categorical_vec[1]=1
             if vector_y[x]=="Shour":
-                y[2]=1
-                vector_y[x] = y
+                categorical_vec[2]=1
             if vector_y[x]=="Chahargah":
-                y[3]=1
-                vector_y[x] = y
+                categorical_vec[3]=1
             if vector_y[x]=="Homayoun":
-                y[4]=1
-                vector_y[x] = y
+                categorical_vec[4]=1
             if vector_y[x]=="Segah":
-                y[5]=1
-                vector_y[x] = y
+                categorical_vec[5]=1
             if vector_y[x]=="Rastepanjgah":
-                y[6]=1
-                vector_y[x] = y
-            x = x+1
-        print vector_y
-        return vector_y
+                categorical_vec[6]=1
+            
+            y =  np.vstack((y, categorical_vec))
+
+        #print y
+        return y
 
 
     def set_X_Y(this, DASTGAH):
@@ -118,10 +114,8 @@ class AudioProccessor:
 Chahargah_X, Chahargah_Y = AudioProccessor().set_X_Y("CHAHARGAH")
 Nava_X, Nava_Y = AudioProccessor().set_X_Y("NAVA")
 
-Chahargah_Y = AudioProccessor().to_categorical(Chahargah_Y)
-Nava_Y = AudioProccessor().to_categorical(Nava_Y)
-
 Y = Chahargah_Y + Nava_Y
+Y_new = AudioProccessor().to_categorical(Y)
 X = np.vstack((Chahargah_X, Nava_X))
 
-#print np.shape(X)
+print Y_new
