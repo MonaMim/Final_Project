@@ -115,7 +115,7 @@ Chahargah_X, Chahargah_Y = AudioProccessor().set_X_Y("CHAHARGAH")
 Nava_X, Nava_Y = AudioProccessor().set_X_Y("NAVA")
 
 Y = Chahargah_Y + Nava_Y
-Y_new = AudioProccessor().to_categorical(Y)
+Y = AudioProccessor().to_categorical(Y)
 X = np.vstack((Chahargah_X, Nava_X))
 
-print Y_new
+print Y 
