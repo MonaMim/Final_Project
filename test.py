@@ -76,7 +76,7 @@ class AudioProccessor:
 
     def to_categorical(this, vector_y): #lookup table
         categorical_vec = [0,0,0,0,0,0,0]
-        y = np.empty([len(vector_y), len(categorical_vec)])
+        y2 = np.empty([len(vector_y), len(categorical_vec)])
         #categorical_vec = np.empty([len(vector_y),7], dtype=int)
         #["Nava", "Mahour", "Shour", "Chahargah", "Homayoun", "Segah", "Rastgepanjgah"]
         #y = np.empty(len(vector_y))
@@ -84,25 +84,25 @@ class AudioProccessor:
         for x , a in enumerate(vector_y):
             categorical_vec = [0,0,0,0,0,0,0]
             
-            if vector_y[x]=="Nava":
+            if vector_y[x]=="NAVA":
                 categorical_vec[0]=1
-            if vector_y[x]=="Mahour":
+            if vector_y[x]=="MAHOUR":
                 categorical_vec[1]=1
-            if vector_y[x]=="Shour":
+            if vector_y[x]=="SHOUR":
                 categorical_vec[2]=1
-            if vector_y[x]=="Chahargah":
+            if vector_y[x]=="CHAHARGAH":
                 categorical_vec[3]=1
-            if vector_y[x]=="Homayoun":
+            if vector_y[x]=="HOMAYOUN":
                 categorical_vec[4]=1
-            if vector_y[x]=="Segah":
+            if vector_y[x]=="SEGAH":
                 categorical_vec[5]=1
-            if vector_y[x]=="Rastepanjgah":
+            if vector_y[x]=="RASTEPANJGAH":
                 categorical_vec[6]=1
             
-            y =  np.vstack((y, categorical_vec))
+            y2  = np.vstack((y2, categorical_vec))
 
         #print y
-        return y
+        return y2
 
 
     def set_X_Y(this, DASTGAH):
@@ -115,10 +115,10 @@ class AudioProccessor:
 Chahargah_X, Chahargah_Y = AudioProccessor().set_X_Y("CHAHARGAH")
 Nava_X, Nava_Y = AudioProccessor().set_X_Y("NAVA")
 
-Y = Chahargah_Y + Nava_Y 
-print Chahargah_Y
-print Nava_Y
-Y = AudioProccessor().to_categorical(Y)
+#Y = Chahargah_Y + Nava_Y 
+#print Chahargah_Y
+#print Nava_Y
+Y = AudioProccessor().to_categorical(Chahargah_Y)
 X = np.vstack((Chahargah_X, Nava_X))
 
 print Y
