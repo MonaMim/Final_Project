@@ -82,8 +82,8 @@ class AudioProccessor:
         #y = np.empty(len(vector_y))
 
         for x , a in enumerate(vector_y):
-            categorical_vec = [0,0,0,0,0,0,0]
-            
+                    
+            categorical_vec = [0,0,0,0,0,0,0]    
             if vector_y[x]=="NAVA":
                 categorical_vec[0]=1
             if vector_y[x]=="MAHOUR":
@@ -100,6 +100,7 @@ class AudioProccessor:
                 categorical_vec[6]=1
             
             y2  = np.vstack((y2, categorical_vec))
+            #categorical_vec = [0,0,0,0,0,0,0]
 
         #print y
         return y2
@@ -115,10 +116,8 @@ class AudioProccessor:
 Chahargah_X, Chahargah_Y = AudioProccessor().set_X_Y("CHAHARGAH")
 Nava_X, Nava_Y = AudioProccessor().set_X_Y("NAVA")
 
-#Y = Chahargah_Y + Nava_Y 
-#print Chahargah_Y
-#print Nava_Y
-Y = AudioProccessor().to_categorical(Chahargah_Y)
+Y = Chahargah_Y + Nava_Y 
+Y = AudioProccessor().to_categorical(Y)
 X = np.vstack((Chahargah_X, Nava_X))
 
 print Y
