@@ -101,10 +101,25 @@ class AudioProccessor:
             
             y2  = np.vstack((y2, categorical_vec))
             #categorical_vec = [0,0,0,0,0,0,0]
-
         #print y
         return y2
 
+    def categorical(this, vector_y):
+
+        y2 = np.empty([len(vector_y), 7])
+
+        for x , a in enumerate(vector_y):
+            switcher={
+                   'NAVA': [1,0,0,0,0,0,0],
+                   'MAHOUR':[0,1,0,0,0,0,0],
+                   'SHOUR':[0,0,1,0,0,0,0],
+                   'CHAHARGAH':[0,0,0,1,0,0,0],
+                   'HOMAYOUN':[0,0,0,0,1,0,0],
+                   'SEGAH':[0,0,0,0,0,1,0],
+                   'RASTEPANJGAH':[0,0,0,0,0,0,1]
+                 }
+            y2  = np.vstack((y2, switcher.get(vector_y[x],"Invalid Input")))
+        return y2
 
     def set_X_Y(this, DASTGAH):
         AudioProccessor().split_group(DASTGAH+"_Raw", DASTGAH+ "_Splitted")
@@ -117,7 +132,8 @@ Chahargah_X, Chahargah_Y = AudioProccessor().set_X_Y("CHAHARGAH")
 Nava_X, Nava_Y = AudioProccessor().set_X_Y("NAVA")
 
 Y = Chahargah_Y + Nava_Y 
-Y = AudioProccessor().to_categorical(Y)
 X = np.vstack((Chahargah_X, Nava_X))
+Y = AudioProccessor().to_categorical(Y)
+#Y = AudioProccessor().categorical(Y)
 
 print Y
