@@ -4,8 +4,9 @@ from pydub import AudioSegment
 import librosa
 from sklearn.model_selection import train_test_split
 from keras.models import Sequential
-from keras.layers import Dense, Activation, Conv2D, MaxPooling2D
-from keras import backend as K
+from keras.layers import Dense, Activation, Conv2D, MaxPooling2D, Dropout, Flatten
+import keras 
+from sklearn.preprocessing import OneHotEncoder
 
 
 class AudioProccessor:
@@ -22,7 +23,7 @@ class AudioProccessor:
     def mp3Split(self, source_file_path, destination_folder_path):
         audio = AudioSegment.from_mp3(source_file_path)
         l = len(audio)
-        duration = 30000
+        duration = 20000
         startFrom = 000
         listOfNewAudios = []
         #i = 1
@@ -41,7 +42,7 @@ class AudioProccessor:
         #print(wave)
         wave = wave[::3]
         mfcc = librosa.feature.mfcc(wave, sr=16000)
-
+        #print (mfcc.shape)
         # If maximum length exceeds mfcc lengths then pad the remaining ones
         if (max_len > mfcc.shape[1]):
             pad_width = max_len - mfcc.shape[1]
@@ -50,7 +51,7 @@ class AudioProccessor:
         # Else cutoff the remaining parts
         else:
             mfcc = mfcc[:, :max_len]
-            #print (mfcc.shape)
+           #print (mfcc.shape)
         
         return mfcc
 
@@ -71,11 +72,13 @@ class AudioProccessor:
             #print mfcc_vectors.shape
             #stack list>np
             
-        mfcc_vector_main = np.vstack(mfcc_vectors)
+        #mfcc_vector_main = np.vstack(mfcc_vectors)
+        mfcc_vector_main = np.array(mfcc_vectors)
         #print "shape: ", mfcc_vector_main.shape
         np.save(path + '.npy', mfcc_vector_main)
+
+        #print (mfcc_vector_main.shape, "this one")
         return mfcc_vector_main
-        #print mfcc_vector_main
 
     def split_group(this, DASTGAH_source_path, DASTGAH_destination_path):
         AudioProccessor().createDirectory(DASTGAH_destination_path)
@@ -112,45 +115,74 @@ Nava_X, Nava_Y = AudioProccessor().set_X_Y("NAVA")
 Y = np.append(Chahargah_Y, Nava_Y)
 #print len(Nava_Y), len(Chahargah_Y), len(Y) 
 X = np.vstack((Chahargah_X, Nava_X))
+
 Y = AudioProccessor().to_categorical(Y)
+
+
 
 #assert X.shape[0] == len(Y)
 
 X_train, X_test, Y_train, Y_test = AudioProccessor().get_train_test(0.6, 42, X, Y)
-X_train = X_train.reshape(X_train.shape[0], 20, 11, 1)
-X_test = X_test.reshape(X_test.shape[0], 20, 11, 1)
 
-print (X_train.shape)
-print (X_train.size)
+#print (X_train.shape) 
+
+X_train = X_train.reshape(X_train.shape[0], X_train.shape[1], X_train.shape[2] , 1)
+#X_test = X_test.reshape(X_test.shape[0], 20, 11, 1)
+
+#print (X_train.shape)
+#print (X_train.size)
 '''
+dim1, dim2 = X_train.shape[1], X_train.shape[2]
 model = Sequential()
 model.add(Conv2D(32, kernel_size=(3, 3),
                  activation='relu',
-                 input_shape=(1,2)))
+                 input_shape=(dim1, dim2, 1)))
 model.add(Conv2D(64, (3, 3), activation='relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
 model.add(Flatten())
 model.add(Dense(128, activation='relu'))
 model.add(Dropout(0.5))
-model.add(Dense(num_classes, activation='softmax'))
+model.add(Dense(7, activation='softmax'))
 
 model.compile(loss=keras.losses.categorical_crossentropy,
               optimizer=keras.optimizers.Adadelta(),
               metrics=['accuracy'])
 
-model.fit(x_train, y_train,
-          batch_size=batch_size,
-          epochs=epochs,
-          verbose=1,
-          validation_data=(x_test, y_test))
-score = model.evaluate(x_test, y_test, verbose=0)
-
-#mfcc = AudioProccessor().wav2mfcc("CHAHARGAH_Raw/Ahmad_Ebadi_CHAHARGAH.mp3", max_len=11) 
-#print (mfcc)
-#print (X_test.shape)
-#print (X_train.shape)
-
-    # Append all of the dataset into one single array, same goes for y
-
+model.fit(X_train, Y_train,
+          batch_size=16,
+          epochs=20,
+          verbose=0,
+          validation_data=(X_test, Y_test))
+score = model.evaluate(X_test, Y_test, verbose=0)
 '''
+dim1, dim2 = X_train.shape[1], X_train.shape[2]
+model = Sequential()
+model.add(Conv2D(32, kernel_size=(3, 3),
+                 activation='relu',
+                 input_shape=(dim1, dim2, 1)))
+model.add(Activation("relu"))
+model.add(MaxPooling2D(pool_size=(2,2)))
+
+
+model.add(Conv2D(64, (3, 3), activation='relu'))
+model.add(Activation("relu"))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+ 
+model.add(Flatten())
+#model.add(Dense(64))
+model.add(Dense(64, activation='relu'))
+
+#model.add(Dense(1))
+#model.add(Activation("sigmoid"))
+
+model.compile(loss=keras.losses.categorical_crossentropy,
+              optimizer=keras.optimizers.Adam(),
+              metrics=['accuracy'])
+
+#print(Y_train)
+model.fit(X_train, Y_train,
+          batch_size=32,
+          validation_data=(X_test, Y_test),
+          verbose= 0)
+model.fit(X_train, Y_train, epochs=3, batch_size=16, verbose=0)
