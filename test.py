@@ -110,11 +110,27 @@ class AudioProccessor:
 
 Chahargah_X, Chahargah_Y = AudioProccessor().set_X_Y("CHAHARGAH")
 Nava_X, Nava_Y = AudioProccessor().set_X_Y("NAVA")
+Homayoun_X, Homayoun_Y = AudioProccessor().set_X_Y("HOMAYOUN")
+Rastepanjgah_X, Rastepanjgah_Y = AudioProccessor().set_X_Y("RASTEPANJGAH")
+Segah_X, Segah_Y = AudioProccessor().set_X_Y("SEGAH")
+Mahour_X, Mahour_Y = AudioProccessor().set_X_Y("MAHOUR")
+Shour_X, Shour_Y = AudioProccessor().set_X_Y("SHOUR")
 
 #Y = Chahargah_Y + Nava_Y 
 Y = np.append(Chahargah_Y, Nava_Y)
+Y= np.append(Y, Rastepanjgah_Y)
+Y= np.append(Y, Homayoun_Y)
+Y = np.append(Y, Segah_Y)
+Y = np.append(Y, Mahour_Y)
+Y = np.append(Y, Shour_Y)
+
 #print len(Nava_Y), len(Chahargah_Y), len(Y) 
 X = np.vstack((Chahargah_X, Nava_X))
+X = np.vstack((X, Homayoun_X))
+X = np.vstack((X, Rastepanjgah_X))
+X = np.vstack((X, Segah_X))
+X = np.vstack((X, Mahour_X))
+X = np.vstack((X, Shour_X))
 
 Y = AudioProccessor().to_categorical(Y)
 
@@ -126,7 +142,8 @@ X_train, X_test, Y_train, Y_test = AudioProccessor().get_train_test(0.6, 42, X, 
 
 #print (X_train.shape) 
 
-X_train = X_train.reshape(X_train.shape[0], X_train.shape[1], X_train.shape[2] , 1)
+X_train = X_train.reshape(X_train.shape[0], X_train.shape[1], X_train.shape[2], 1)
+X_test = X_test.reshape(X_test.shape[0], X_test.shape[1], X_test.shape[2], 1)
 #X_test = X_test.reshape(X_test.shape[0], 20, 11, 1)
 
 #print (X_train.shape)
@@ -161,12 +178,12 @@ model = Sequential()
 model.add(Conv2D(32, kernel_size=(3, 3),
                  activation='relu',
                  input_shape=(dim1, dim2, 1)))
-model.add(Activation("relu"))
-model.add(MaxPooling2D(pool_size=(2,2)))
+#model.add(Activation("relu"))
+model.add(MaxPooling2D(pool_size=(2,2), strides=(2, 2)))
 
 
 model.add(Conv2D(64, (3, 3), activation='relu'))
-model.add(Activation("relu"))
+#model.add(Activation("relu"))
 model.add(MaxPooling2D(pool_size=(2, 2)))
  
 model.add(Flatten())
