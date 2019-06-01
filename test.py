@@ -150,33 +150,7 @@ X_train = X_train.reshape(X_train.shape[0], X_train.shape[1], X_train.shape[2], 
 X_test = X_test.reshape(X_test.shape[0], X_test.shape[1], X_test.shape[2], 1)
 #X_test = X_test.reshape(X_test.shape[0], 20, 11, 1)
 
-#print (X_train.shape)
-#print (X_train.size)
-'''
-dim1, dim2 = X_train.shape[1], X_train.shape[2]
-model = Sequential()
-model.add(Conv2D(32, kernel_size=(3, 3),
-                 activation='relu',
-                 input_shape=(dim1, dim2, 1)))
-model.add(Conv2D(64, (3, 3), activation='relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Dropout(0.25))
-model.add(Flatten())
-model.add(Dense(128, activation='relu'))
-model.add(Dropout(0.5))
-model.add(Dense(7, activation='softmax'))
 
-model.compile(loss=keras.losses.categorical_crossentropy,
-              optimizer=keras.optimizers.Adadelta(),
-              metrics=['accuracy'])
-
-model.fit(X_train, Y_train,
-          batch_size=16,
-          epochs=20,
-          verbose=0,
-          validation_data=(X_test, Y_test))
-score = model.evaluate(X_test, Y_test, verbose=0)
-'''
 dim1, dim2 = X_train.shape[1], X_train.shape[2]
 model = Sequential()
 model.add(Conv2D(64, kernel_size=(3, 3),
