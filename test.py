@@ -1,5 +1,6 @@
 import numpy as np
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 from pydub import AudioSegment
 import librosa
 from sklearn.model_selection import train_test_split
@@ -7,12 +8,15 @@ from keras.models import Sequential
 from keras.layers import Dense, Activation, Conv2D, MaxPooling2D, Dropout, Flatten
 import keras 
 from sklearn.preprocessing import OneHotEncoder
+from keras.models import load_model
+
 
 
 class AudioProccessor:
 
     dastgah_to_index = {"NAVA":0, "MAHOUR":1, "SHOUR":2, "CHAHARGAH":3, "HOMAYOUN":4, "SEGAH":5, "RASTEPANJGAH":6}
-    np.set_printoptions(threshold=np.nan)
+    
+    np.set_printoptions(threshold=0) #np.nan
     counter = 1
 
     def createDirectory(self, directory):
@@ -23,7 +27,7 @@ class AudioProccessor:
     def mp3Split(self, source_file_path, destination_folder_path):
         audio = AudioSegment.from_mp3(source_file_path)
         l = len(audio)
-        duration = 20000
+        duration = 120000 #2mins
         startFrom = 000
         listOfNewAudios = []
         #i = 1
@@ -116,10 +120,10 @@ Segah_X, Segah_Y = AudioProccessor().set_X_Y("SEGAH")
 Mahour_X, Mahour_Y = AudioProccessor().set_X_Y("MAHOUR")
 Shour_X, Shour_Y = AudioProccessor().set_X_Y("SHOUR")
 
-#Y = Chahargah_Y + Nava_Y 
+Y = Chahargah_Y + Nava_Y 
 Y = np.append(Chahargah_Y, Nava_Y)
-Y= np.append(Y, Rastepanjgah_Y)
 Y= np.append(Y, Homayoun_Y)
+Y= np.append(Y, Rastepanjgah_Y)
 Y = np.append(Y, Segah_Y)
 Y = np.append(Y, Mahour_Y)
 Y = np.append(Y, Shour_Y)
@@ -175,20 +179,23 @@ score = model.evaluate(X_test, Y_test, verbose=0)
 '''
 dim1, dim2 = X_train.shape[1], X_train.shape[2]
 model = Sequential()
-model.add(Conv2D(32, kernel_size=(3, 3),
+model.add(Conv2D(64, kernel_size=(3, 3),
                  activation='relu',
                  input_shape=(dim1, dim2, 1)))
+#increase 
+#32 * (3*3) 
 #model.add(Activation("relu"))
 model.add(MaxPooling2D(pool_size=(2,2), strides=(2, 2)))
 
 
-model.add(Conv2D(64, (3, 3), activation='relu'))
+model.add(Conv2D(128, (3, 3), activation='relu'))
 #model.add(Activation("relu"))
 model.add(MaxPooling2D(pool_size=(2, 2)))
- 
+#max between 4 windows 
 model.add(Flatten())
 #model.add(Dense(64))
-model.add(Dense(64, activation='relu'))
+model.add(Dense(1024, activation='relu'))
+#64 node
 model.add(Dense(7, activation='softmax'))
 
 #model.add(Dense(1))
@@ -202,5 +209,17 @@ model.compile(loss=keras.losses.categorical_crossentropy,
 model.fit(X_train, Y_train,
           batch_size=32,
           validation_data=(X_test, Y_test),
-          verbose= 0)
-model.fit(X_train, Y_train, epochs=3, batch_size=16, verbose=0)
+          verbose= 1)
+#increase to 128
+
+print(model.evaluate(X_test, Y_test, verbose=0))
+
+print(model.predict(X_test))
+
+model.save('my_model.h5') 
+
+del model # deletes the existing model
+
+# returns a compiled model
+# identical to the previous one
+model = load_model('my_model.h5')
