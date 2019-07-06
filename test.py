@@ -14,7 +14,8 @@ from keras.models import load_model
 
 class AudioProccessor:
 
-    dastgah_to_index = {"NAVA":0, "MAHOUR":1, "SHOUR":2, "CHAHARGAH":3, "HOMAYOUN":4, "SEGAH":5, "RASTEPANJGAH":6}
+    #dastgah_to_index = {"NAVA":0, "MAHOUR":1, "SHOUR":2, "CHAHARGAH":3, "HOMAYOUN":4, "SEGAH":5, "RASTEPANJGAH":6}
+    dastgah_to_index = {"NAVA":0,"SEGAH":1, "MAHOUR": 2}
     
     np.set_printoptions(threshold=0) #np.nan
     counter = 1
@@ -27,7 +28,8 @@ class AudioProccessor:
     def mp3Split(self, source_file_path, destination_folder_path):
         audio = AudioSegment.from_mp3(source_file_path)
         l = len(audio)
-        duration = 120000 #2mins
+        #duration = 120000 #2mins
+        duration = 20000 #20 secs
         startFrom = 000
         listOfNewAudios = []
         #i = 1
@@ -58,7 +60,6 @@ class AudioProccessor:
            #print (mfcc.shape)
         
         return mfcc
-
 
 
     def save_data_to_array(this, path, max_len=11):
@@ -98,7 +99,7 @@ class AudioProccessor:
         return DASTGAH_X, DASTGAH_Y
 
     def to_categorical(this, vector_y): #lookup table
-        y2 = np.zeros([len(vector_y), 7])
+        y2 = np.zeros([len(vector_y),2])
         for x , a in enumerate(vector_y):
             y2[x, AudioProccessor.dastgah_to_index[a]] = 1 
         return y2
@@ -111,14 +112,16 @@ class AudioProccessor:
 #mfcc = AudioProccessor().wav2mfcc('Ahmad_Ebadi_CHAHARGAH.mp3')
 #print (mfcc.shape)
 
-
+'''
 Chahargah_X, Chahargah_Y = AudioProccessor().set_X_Y("CHAHARGAH")
-Nava_X, Nava_Y = AudioProccessor().set_X_Y("NAVA")
 Homayoun_X, Homayoun_Y = AudioProccessor().set_X_Y("HOMAYOUN")
 Rastepanjgah_X, Rastepanjgah_Y = AudioProccessor().set_X_Y("RASTEPANJGAH")
-Segah_X, Segah_Y = AudioProccessor().set_X_Y("SEGAH")
-Mahour_X, Mahour_Y = AudioProccessor().set_X_Y("MAHOUR")
 Shour_X, Shour_Y = AudioProccessor().set_X_Y("SHOUR")
+'''
+Nava_X, Nava_Y = AudioProccessor().set_X_Y("NAVA")
+Segah_X, Segah_Y = AudioProccessor().set_X_Y("SEGAH")
+#Mahour_X, Mahour_Y = AudioProccessor().set_X_Y("MAHOUR")
+'''
 
 Y = Chahargah_Y + Nava_Y 
 Y = np.append(Chahargah_Y, Nava_Y)
@@ -134,7 +137,13 @@ X = np.vstack((X, Homayoun_X))
 X = np.vstack((X, Rastepanjgah_X))
 X = np.vstack((X, Segah_X))
 X = np.vstack((X, Mahour_X))
-X = np.vstack((X, Shour_X))
+X = np.vstack((X, Shour_X)) '''
+
+#Y = Nava_Y + Segah_Y 
+Y = np.append(Nava_Y, Segah_Y)
+#Y = np.append(Y, Mahour_Y)
+X = np.vstack((Nava_X, Segah_X))
+#X = np.vstack((X, Mahour_X)) 
 
 Y = AudioProccessor().to_categorical(Y)
 
@@ -150,10 +159,15 @@ X_train = X_train.reshape(X_train.shape[0], X_train.shape[1], X_train.shape[2], 
 X_test = X_test.reshape(X_test.shape[0], X_test.shape[1], X_test.shape[2], 1)
 #X_test = X_test.reshape(X_test.shape[0], 20, 11, 1)
 
-
+#print (X_train.shape)
+#print (X_train.size)
 dim1, dim2 = X_train.shape[1], X_train.shape[2]
+
+print (dim1)
+print (dim2)
+
 model = Sequential()
-model.add(Conv2D(64, kernel_size=(3, 3),
+model.add(Conv2D(64 , kernel_size=(3, 3),
                  activation='relu',
                  input_shape=(dim1, dim2, 1)))
 #increase 
@@ -162,7 +176,7 @@ model.add(Conv2D(64, kernel_size=(3, 3),
 model.add(MaxPooling2D(pool_size=(2,2), strides=(2, 2)))
 
 
-model.add(Conv2D(128, (3, 3), activation='relu'))
+model.add(Conv2D(64, (3, 3), activation='relu'))
 #model.add(Activation("relu"))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 #max between 4 windows 
@@ -170,7 +184,7 @@ model.add(Flatten())
 #model.add(Dense(64))
 model.add(Dense(1024, activation='relu'))
 #64 node
-model.add(Dense(7, activation='softmax'))
+model.add(Dense(2, activation='softmax'))
 
 #model.add(Dense(1))
 #model.add(Activation("sigmoid"))
@@ -179,7 +193,11 @@ model.compile(loss=keras.losses.categorical_crossentropy,
               optimizer=keras.optimizers.Adam(),
               metrics=['accuracy'])
 
-#print(Y_train)
+print(X_train.shape, "X_train")
+print(Y_train.shape, "Y_train")
+print(X_test.shape, "X_test")
+print(Y_test.shape, "Y_test")
+
 model.fit(X_train, Y_train,
           batch_size=32,
           validation_data=(X_test, Y_test),
